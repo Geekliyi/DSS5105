@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG Report - Interactive Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>ESG Report</h1>
+        <nav>
+            <ul>
+                <li><a href="what_we_do.html">What we do</a></li>
+                <li><a href="how_we_score.html">How we score</a></li>
+                <li><a href="who_we_are.html">Who we are</a></li>
+            </ul>
+        </nav>
+        <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <button type="submit" class="upload-button">上传报告</button>
+        </form>
+    </header>
+
+    <main>
+        <section class="dropdown">
+            <label for="identity">I am a/an:</label>
+            <select id="identity">
+                <option value="investor">Investor</option>
+                <option value="government-agency">Government Agency</option>
+                <option value="business-owner">Business Owner</option>
+            </select>
+        </section>
+
+        <section class="report-sections">
+            <div class="score-display">
+                <h2>评分展示</h2>
+                <!-- Score display content -->
+            </div>
+
+            <div class="trend-chart">
+                <h2>趋势图</h2>
+                <!-- Trend chart content -->
+            </div>
+
+            <div class="risk-assessment">
+                <h2>风险评估</h2>
+                <!-- Risk assessment content -->
+            </div>
+        </section>
+
+        <aside class="summary-suggestions">
+            <h2>Summary & Suggestions</h2>
+            <ul id="summary-list">
+                <!-- Content updated based on the dropdown selection -->
+            </ul>
+            <button class="export-button">导出报告</button>
+        </aside>
+    </main>
+
+    <footer>
+        <p>© 2024 ESG Report. All Rights Reserved.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
