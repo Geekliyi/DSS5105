@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG Report - Interactive Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <!-- Header with title and upload form -->
+    <header class="header">
+        <h1 class="header-title">ESG Report of LENOVO in 2020</h1>
+        
+      
+    </header>
+
+    <!-- Navigation buttons to switch between sections -->
+    <div class="section-nav">
+        <button onclick="showSection('score-display')">Score Display</button>
+        <button onclick="showSection('trend-chart')">Trend Chart</button>
+        <button onclick="showSection('risk-assessment')">Risk Assessment</button>
+        <button onclick="showSection('summary-suggestions')">Summary & Suggestions</button>
+    </div>
+
+    <!-- Main Content Sections (initially hidden except for one) -->
+    <main class="main-content">
+        <!-- Score Display Section -->
+        <section id="score-display" class="section-content">
+            <div class="score-display section-box">
+                <h2 class="section-title">Score Display</h2>
+                <div id="leida" style="width: 100%; height: 300px;"></div>
+                <span>{{ result.text.Comm1 }}</span>
+                <img src="data:image/png;base64,{{ result.p1 }}" style="width:100%;height:200px" alt="">
+            </div>
+        </section>
+
+        <!-- Trend Chart Section -->
+        <section id="trend-chart" class="section-content" style="display:none;">
+            <div class="trend-chart section-box">
+                <h2 class="section-title">Trend Chart</h2>
+                <div id="trend-chart-container" style="width: 100%; height: 300px;"></div>
+                <table class="trend-chart-table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in result.tables %}
+                        <tr>
+                            <td>{{ item.0 }}</td>
+                            <td>{{ item.1 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <span>{{ result.text.Comm4 }}</span>
+            </div>
+        </section>
+
+        <!-- Risk Assessment Section -->
+        <section id="risk-assessment" class="section-content" style="display:none;">
+            <div class="risk-assessment section-box">
+                <h2 class="section-title">Risk Assessment</h2>
+                <span>{{ result.text.Comm2 }}</span>
+                <img src="data:image/png;base64,{{ result.p2 }}" alt="Image" style="width: 100%; margin: 10px;">
+                <span>{{ result.text.Comm3 }}</span>
+                <img src="data:image/png;base64,{{ result.p3 }}" alt="Image" style="width: 100%; margin: 10px;">
+            </div>
+        </section>
+
+        <!-- Summary & Suggestions Section -->
+        <section id="summary-suggestions" class="section-content" style="display:none;">
+            <div class="summary-suggestions section-box">
+                <h2 class="section-title">Summary & Suggestions</h2>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Suggestion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Environment</td>
+                            <td>{{ result.text.Comm5 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Social</td>
+                            <td>{{ result.text.Comm6 }}</td>
+                        </tr>
+                        <tr>
+                            <td>Governance</td>
+                            <td>{{ result.text.Comm7 }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+           
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 ESG Report. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript for section switching -->
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.style.display = 'none';
+            });
+            // Show the selected section
+            document.getElementById(sectionId).style.display = 'block';
+        }
+    </script>
+</body>
+</html>

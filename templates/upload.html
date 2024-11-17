@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Green Geeks</h1>
+        <nav>
+            <ul>
+                <li><a href="what_we_do.html">What we do</a></li>
+                <li><a href="how_we_score.html">How we score</a></li>
+                <li><a href="who_we_are.html">Who we are</a></li>
+            </ul>
+        </nav>
+        
+    </header>
+    <div class="background-overlay"></div>
+    <div class="upload-container">
+        <h2>Drop file to upload</h2>
+        <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+            <div class="drop-zone" id="drop-zone">
+                <input type="file" id="fileInput" name="file" accept="application/pdf" required>
+                <span class="drop-zone__prompt">Choose file or drag it here</span>
+            </div>
+            <button type="submit" class="upload-button">Upload file</button>
+        </form>
+    </div>
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('fileInput');
+    
+        dropZone.addEventListener('click', () => fileInput.click());
+    
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drop-zone--over');
+        });
+    
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drop-zone--over');
+        });
+    
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drop-zone--over');
+    
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+            }
+        });
+    </script>
+    
+</body>
+</html>

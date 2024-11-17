@@ -1,0 +1,3 @@
+输入：ESGData_rating.csv，new_data.csv
+输出：Distribution_of_Return_Deviations.png，Feature_Importances_in_Random_Forest_Model.png，Risk_Level_Distribution.png，predictions.csv，final_output_with_risk_levels.csv
+代码名称：Financial_analysis.py

@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESG Report Analysis Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <h1><a href="./">ESG REPORT ANALYSIS SYSTEM</a></h1>
+    
+    <div class="container">
+        <h2 class="header-title">ESG Report Analysis Results - LENOVO 2023</h2>
+        
+        <!-- Navigation buttons -->
+        <div class="section-nav">
+            <button class="nav-button" onclick="showSection('score-display')">Score Display</button>
+            <button class="nav-button" onclick="showSection('trend-chart')">Trend Chart</button>
+            <button class="nav-button" onclick="showSection('risk-assessment')">Risk Assessment</button>
+            <button class="nav-button" onclick="showSection('summary-suggestions')">Summary & Suggestions</button>
+        </div>
+
+        <!-- Main Content Sections -->
+        <main class="main-content">
+            <!-- Score Display Section -->
+            <section id="score-display" class="section-content">
+                <div class="score-display section-box">
+                    <h2 class="section-title">Score Display</h2>
+                    <!-- 添加雷达图容器 -->
+                    <div id="radar-chart" style="width: 100%; height: 300px;"></div>
+                    <div class="score-text">
+                        <span id="formatted-text">{{ result.text.Comm1 }}</span>
+                    </div>
+                    <div class="image-container">
+                        <img src="data:image/png;base64,{{ result.p1 }}" alt="">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trend Chart Section -->
+            <section id="trend-chart" class="section-content" style="display:none;">
+                <div class="trend-chart section-box">
+                    <h2 class="section-title">Trend Chart</h2>
+                    <div id="trend-chart-container" style="width: 100%; height: 300px;"></div>
+                    <table class="trend-chart-table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set seen_years = [] %}
+                            {% for item in result.tables %}
+                                {% if item[0]|string not in seen_years %}
+                                    {% set _ = seen_years.append(item[0]|string) %}
+                                    <tr>
+                                        <td>{{ item[0] }}</td>
+                                        <td>{{ item[1] }}</td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <span>{{ result.text.Comm4 }}</span>
+                </div>
+            </section>
+            <div class="export-container">
+                <button id="export-button" class="export-button" onclick="exportReport()">
+                    <i class="fas fa-print"></i>  Export This Report
+                </button>
+            </div>
+        
+
+            <!-- Risk Assessment Section -->
+            <section id="risk-assessment" class="section-content" style="display:none;">
+                <div class="risk-assessment section-box">
+                    <h2 class="section-title">Risk Assessment</h2>
+                    <span>{{ result.text.Comm2 }}</span>
+                    <div class="image-container">
+                        <img src="data:image/png;base64,{{ result.p2 }}" alt="Risk Assessment Image 1" class="responsive-image">
+                    </div>
+                    <span>{{ result.text.Comm3 }}</span>
+                    <div class="image-container">
+                        <img src="data:image/png;base64,{{ result.p3 }}" alt="Risk Assessment Image 2" class="responsive-image">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Summary & Suggestions Section -->
+            <section id="summary-suggestions" class="section-content" style="display:none;">
+                <div class="summary-suggestions section-box">
+                    <h2 class="section-title">Summary & Suggestions</h2>
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>Dimension</th>
+                                <th>Suggestion</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Environment</td>
+                                <td class="suggestion-cell">
+                                    <ol class="suggestion-list">
+                                        {% for suggestion in result.text.Comm5.split('.') %}
+                                            {% if suggestion.strip() and not suggestion.strip().isdigit() %}
+                                                {% set cleaned_suggestion = suggestion.strip() %}
+                                                {% if ":" in cleaned_suggestion %}
+                                                    {% set cleaned_suggestion = cleaned_suggestion.split(":", 1)[1].strip() %}
+                                                {% endif %}
+                                                {% if cleaned_suggestion %}
+                                                    <li>{{ cleaned_suggestion }}</li>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ol>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Social</td>
+                                <td class="suggestion-cell">
+                                    <ol class="suggestion-list">
+                                        {% for suggestion in result.text.Comm6.split('.') %}
+                                            {% if suggestion.strip() and not suggestion.strip().isdigit() %}
+                                                {% set cleaned_suggestion = suggestion.strip() %}
+                                                {% if ":" in cleaned_suggestion %}
+                                                    {% set cleaned_suggestion = cleaned_suggestion.split(":", 1)[1].strip() %}
+                                                {% endif %}
+                                                {% if cleaned_suggestion %}
+                                                    <li>{{ cleaned_suggestion }}</li>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ol>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Governance</td>
+                                <td class="suggestion-cell">
+                                    <ol class="suggestion-list">
+                                        {% for suggestion in result.text.Comm7.split('.') %}
+                                            {% if suggestion.strip() and not suggestion.strip().isdigit() %}
+                                                {% set cleaned_suggestion = suggestion.strip() %}
+                                                {% if ":" in cleaned_suggestion %}
+                                                    {% set cleaned_suggestion = cleaned_suggestion.split(":", 1)[1].strip() %}
+                                                {% endif %}
+                                                {% if cleaned_suggestion %}
+                                                    <li>{{ cleaned_suggestion }}</li>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ol>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <footer class="footer">
+        <p>© 2024 ESG Report Analysis System. All Rights Reserved.</p>
+    </footer>
+
+    <!-- JavaScript for section switching -->
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.style.display = 'none';
+            });
+            // Show the selected section
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // 根据显示的部分初始化相应的图表
+            if (sectionId === 'score-display') {
+                initRadarChart();
+            } else if (sectionId === 'trend-chart') {
+                initTrendChart();
+            }
+        }
+
+        // 添加雷达图初始化函数
+        function initRadarChart() {
+            const chartDom = document.getElementById('radar-chart');
+            const chart = echarts.init(chartDom);
+            
+            const radarData = {{ result.leida|safe }};
+            const option = {
+                tooltip: {},
+                radar: {
+                    indicator: radarData.indicator,
+                    center: ['50%', '50%'],
+                    radius: 150,
+                    axisName: {
+                        color: '#e0e1e1'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    splitArea: {
+                        areaStyle: {
+                            color: 'rgba(255, 255, 255, 0.05)'
+                        }
+                    }
+                },
+                series: [{
+                    name: radarData.seriesData[0].name,
+                    type: 'radar',
+                    data: [{
+                        value: radarData.seriesData[0].value,
+                        name: radarData.seriesData[0].name,
+                        itemStyle: {
+                            color: '#4CAF50'
+                        },
+                        areaStyle: {
+                            color: 'rgba(76, 175, 80, 0.3)'
+                        }
+                    }]
+                }],
+                backgroundColor: 'transparent',
+                textStyle: {
+                    color: '#e0e1e1'
+                }
+            };
+            
+            chart.setOption(option);
+            
+            // 响应窗口大小变化
+            window.addEventListener('resize', function() {
+                chart.resize();
+            });
+        }
+
+        // 添加趋势图初始化函数
+        function initTrendChart() {
+            const chartDom = document.getElementById('trend-chart-container');
+            const myChart = echarts.init(chartDom);
+            
+            // 从表格中获取数据
+            const years = [];
+            const scores = [];
+            const tableRows = document.querySelectorAll('.trend-chart-table tbody tr');
+            
+            tableRows.forEach(row => {
+                const year = row.cells[0].textContent;
+                const score = parseFloat(row.cells[1].textContent);
+                years.push(year);
+                scores.push(score);
+            });
+
+            const option = {
+                title: {
+                    text: 'ESG Score Trend',
+                    textStyle: {
+                        color: '#e0e1e1'
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        return `Year: ${params[0].name}<br/>Score: ${params[0].value}`;
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: years,
+                    axisLabel: {
+                        color: '#e0e1e1'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'ESG Score',
+                    nameTextStyle: {
+                        color: '#e0e1e1'
+                    },
+                    axisLabel: {
+                        color: '#e0e1e1'
+                    }
+                },
+                series: [{
+                    data: scores.map((score, index) => {
+                        // 2024年的数据点使用不同的样式
+                        if (years[index] === '2024') {
+                            return {
+                                value: score,
+                                itemStyle: {
+                                    color: '#ff4444'
+                                },
+                                symbolSize: 10,
+                                label: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: 'Predicted',
+                                    color: '#ff4444'
+                                }
+                            };
+                        }
+                        return score;
+                    }),
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        color: '#4CAF50'
+                    },
+                    itemStyle: {
+                        color: '#4CAF50'
+                    }
+                }],
+                backgroundColor: 'transparent',
+                textStyle: {
+                    color: '#e0e1e1'
+                }
+            };
+
+            myChart.setOption(option);
+            
+            // 响应窗口大小变化
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        }
+
+        // 页面加载时显示第一个部分并初始化雷达图
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('score-display');
+        });
+    </script>
+
+    <style>
+        .suggestion-cell {
+            padding: 15px 20px;
+        }
+
+        .suggestion-list {
+            margin: 0;
+            padding-left: 20px;
+            list-style-position: outside;
+        }
+
+        .suggestion-list li {
+            margin-bottom: 12px;
+            line-height: 1.5;
+            color: #fff;
+        }
+
+        .suggestion-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .suggestion-cell {
+                padding: 10px 15px;
+            }
+            
+            .suggestion-list {
+                padding-left: 15px;
+            }
+            
+            .suggestion-list li {
+                margin-bottom: 8px;
+                font-size: 14px;
+            }
+        }
+
+        .image-container {
+            width: 100%;
+            max-width: 800px;  /* 设置最大宽度 */
+            margin: 20px auto;  /* 居中显示 */
+            padding: 0 15px;  /* 两侧留白 */
+        }
+
+        .responsive-image {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;  /* 圆角 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);  /* 轻微阴影 */
+            transition: transform 0.3s ease;  /* 平滑过渡效果 */
+        }
+
+        /* 大屏幕适配 */
+        @media screen and (min-width: 1200px) {
+            .image-container {
+                max-width: 1000px;
+            }
+        }
+
+        /* 中等屏幕适配 */
+        @media screen and (max-width: 992px) {
+            .image-container {
+                max-width: 700px;
+            }
+        }
+
+        /* 小屏幕适配 */
+        @media screen and (max-width: 768px) {
+            .image-container {
+                max-width: 100%;
+                padding: 0 10px;
+            }
+        }
+
+        /* 可选：鼠标悬停效果 */
+        .responsive-image:hover {
+            transform: scale(1.02);  /* 轻微放大效果 */
+        }
+    </style>
+</body>
+</html>

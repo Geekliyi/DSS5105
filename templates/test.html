@@ -5,63 +5,420 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ESG Report - Interactive Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Basic Layout Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    margin: 0;
+}
+
+nav {
+    margin-top: 10px;
+}
+
+#upload-form {
+    margin: 20px 0;
+}
+
+#upload-form .upload-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+main {
+    padding: 20px;
+}
+
+.report-sections {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Grid layout for content */
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.column {
+    flex: 0 0 48%; /* Each column takes up 48% of the row */
+    box-sizing: border-box;
+    min-height: 400px; /* Set minimum height to ensure all divs are same size */
+    display: flex;
+    flex-direction: column;
+}
+
+.score-display, .trend-chart, .risk-assessment, .summary-suggestions {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    flex-grow: 1; /* Ensures the div expands to fill available space */
+}
+
+.score-display h2, .trend-chart h2, .risk-assessment h2, .summary-suggestions h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.export-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000; /* 确保按钮在其他内容之上 */
+}
+
+.export-button {
+    background-color: #2196F3; /* 按钮背景色 */
+    color: white; /* 按钮文字颜色 */
+    padding: 12px 24px; /* 按钮内边距 */
+    border: none; /* 去掉边框 */
+    border-radius: 4px; /* 圆角边框 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    font-size: 16px; /* 按钮文字大小 */
+    transition: background-color 0.3s ease; /* 鼠标悬停时的平滑过渡 */
+}
+
+.export-button:hover {
+    background-color: #1976D2; /* 鼠标悬停时的背景颜色 */
+}
+
+.export-button i {
+    font-size: 18px;
+    margin-right: 8px; /* 图标和文字之间的间距 */
+}
+
+
+    </style>
 </head>
 <body>
     <header>
-        <h1>ESG Report</h1>
-        <nav>
-            <ul>
-                <li><a href="what_we_do.html">What we do</a></li>
-                <li><a href="how_we_score.html">How we score</a></li>
-                <li><a href="who_we_are.html">Who we are</a></li>
-            </ul>
-        </nav>
-        <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
-            <input type="file" name="file" required>
-            <button type="submit" class="upload-button">上传报告</button>
-        </form>
+        <h1><a href="/">ESG Report</a></h1>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <section class="dropdown" style="margin-right: 20px;">
+                <label for="identity" style="margin-right: 10px;">I am a/an:</label>
+                <select id="identity" class="form-select form-control">
+                    <option value="investor">Investor</option>
+                    <option value="government-agency">Government Agency</option>
+                    <option value="business-owner">Business Owner</option>
+                </select>
+            </section>
+            <form action="" method="get" id="query-form" style="display: flex; align-items: center;">
+                <div class="form-row" style="display: flex; align-items: center;">
+                    <!-- 公司选择 -->
+                    <div class="col-md-6" style="margin-right: 20px;">
+                        <label for="company_select" class="form-label">选择公司:</label>
+                        <select id="company_select" name="company" class="form-select form-control">
+                            <option value="">请选择公司</option>
+                            <option value="Lenovo">Lenovo</option>
+                            <option value="HP">HP</option>
+                            <option value="Pegatron">Pegatron</option>
+                            <option value="BOE">BOE</option>
+                            <option value="TCL">TCL</option>
+                            <option value="Microsoft">Microsoft</option>
+                            <option value="SAP">SAP</option>
+                            <option value="HUAWEI">HUAWEI</option>
+                            <option value="Kingdee International Software Group">Kingdee International Software Group</option>
+                            <option value="Tencent">Tencent</option>
+                            <option value="Infosys">Infosys</option>
+                            <option value="Wipro">Wipro</option>
+                            <option value="SEAGATE">SEAGATE</option>
+                            <option value="Canon">Canon</option>
+                            <option value="Omron">Omron</option>
+                            <option value="Delta">Delta</option>
+                            <option value="SUNNY OPTICAL">SUNNY OPTICAL</option>
+                            <option value="Intel">Intel</option>
+                            <option value="Qualcomm">Qualcomm</option>
+                            <option value="TSMC">TSMC</option>
+                            <option value="SMIC">SMIC</option>
+                            <option value="TEXAS INSTRUMENTS">TEXAS INSTRUMENTS</option>
+                        </select>
+                    </div>
+        
+                    <!-- 年份选择 -->
+                    <div class="col-md-6">
+                        <label for="year_select" class="form-label">选择年份:</label>
+                        <select id="year_select" name="year" class="form-select form-control">
+                            <option value="">请选择年份</option>
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                        </select>
+                    </div>
+                </div>
+        
+                <!-- 查询按钮 -->
+                <button type="submit" class="btn btn-primary mt-3" style="margin-left: 20px;">查询</button>
+            </form>
+        </div>
     </header>
 
-    <main>
-        <section class="dropdown">
-            <label for="identity">I am a/an:</label>
-            <select id="identity">
-                <option value="investor">Investor</option>
-                <option value="government-agency">Government Agency</option>
-                <option value="business-owner">Business Owner</option>
-            </select>
-        </section>
-
+    <main id="report-section">
         <section class="report-sections">
-            <div class="score-display">
-                <h2>评分展示</h2>
-                <!-- Score display content -->
+            <!-- First Row: 2 divs for Score and Trend Chart -->
+            <div class="row">
+                <div class="column">
+                    <div class="score-display" style="height:900px">
+                        <h2 class="mb-4">评分展示</h2>
+                        <div class="mb-4">
+    
+</div>
+           <div id="leida" style="width: 50%; height: 50%;"></div>
+                        <br>
+                        <span>{{result.text.Comm1}}</span>
+                        <img src="data:image/png;base64,{{ result.p1 }}" style="width:100%;height:200px" alt="">
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="trend-chart">
+                        <h2>趋势图</h2>
+                        <div id="trend-chart" style="width: 100%; height: 45%;"></div>
+
+                        <table border="1" cellpadding="5" cellspacing="0" style="width: 80%; margin: auto;">
+                            <thead>
+                                <tr>
+                                    <th>年份</th>
+                                    <th>得分</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in result.tables%}
+                                <tr>
+                                    <td>{{item.0}}年</td>
+                                    <td>{{item.1}}</td>
+                                </tr>
+                            {%endfor%}
+                            </tbody>
+                        </table>
+                        <br>
+                        <span>
+                            {{result.text.Comm4}}
+                        </span>
+                    </div>
+                </div>
             </div>
 
-            <div class="trend-chart">
-                <h2>趋势图</h2>
-                <!-- Trend chart content -->
+            <!-- Second Row: 2 divs for Risk Assessment and Summary & Suggestions -->
+            <div class="row">
+                <div class="column">
+                    <div class="risk-assessment">
+                        <h2>风险评估</h2>
+                        <div style="width:100%">
+                            <span>{{result.text.Comm2}}</span>
+                            <img src="data:image/png;base64,{{ result.p2 }}" alt="Image" style="width: 100%; margin: 10px;">
+                            <span>{{result.text.Comm3}}</span>
+                            <img src="data:image/png;base64,{{ result.p3 }}" alt="Image" style="width: 100%; margin: 10px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="column">
+                    <div class="summary-suggestions">
+                        <h2>建议总结</h2>
+                        <ul id="summary-list"></ul>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">维度</th>
+                <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">建议</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">环境</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{result.text.Comm5}}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">社会</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{result.text.Comm6}}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">治理</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">{{result.text.Comm7}}</td>
+            </tr>
+        </tbody>
+    </table>
+                    </div>
+                </div>
             </div>
 
-            <div class="risk-assessment">
-                <h2>风险评估</h2>
-                <!-- Risk assessment content -->
+            <!-- Export Button -->
+            <div class="row" style="text-align: center; margin-top: 20px;">
+                <button class="export-button" onclick="exportReport()">导出报告</button>
             </div>
         </section>
-
-        <aside class="summary-suggestions">
-            <h2>Summary & Suggestions</h2>
-            <ul id="summary-list">
-                <!-- Content updated based on the dropdown selection -->
-            </ul>
-            <button class="export-button">导出报告</button>
-        </aside>
     </main>
 
-    <footer>
+    <footer style="text-align:center">
         <p>© 2024 ESG Report. All Rights Reserved.</p>
     </footer>
+</body>
+</html>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script>
+
+
+
+            const chartDom = document.getElementById('trend-chart');
+            const chart = echarts.init(chartDom);
+
+            const option = {
+                title: {
+                    text: 'ESG 评分趋势'
+                },
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: {{result.esg_x|safe}},
+                    name: '年份'
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'ESG 评分'
+                },
+                series: [{
+                    data: {{result.esg_y|safe}},
+                    type: 'line',
+                    smooth: true,
+                    name: 'ESG 评分'
+                }]
+            };
+
+            chart.setOption(option);
+
+    </script>
+    <script>
+
+        // 从后端传入的雷达图数据
+        const radarData = {{ result.leida|safe }};
+
+        // 雷达图配置
+        const option1 = {
+
+            tooltip: {},
+            radar: {
+                indicator: radarData.indicator,
+                center: ['50%', '50%'],
+                radius: 150
+            },
+            series: [{
+                name: radarData.seriesData[0].name,
+                type: 'radar',
+                data: [{
+                    value: radarData.seriesData[0].value,
+                    name: radarData.seriesData[0].name
+                }]
+            }]
+        };
+
+        // 初始化图表
+        const chart2 = echarts.init(document.getElementById('leida'));
+        chart2.setOption(option1);
+    </script>
+    <script>
+        function displayScore() {
+            // 获取下拉框的选择值
+            const score = document.getElementById("company-select").value;
+            // 获取显示评分的元素
+            const scoreDisplay = document.getElementById("score-display");
+
+            // 根据选择的公司展示评分
+            if (score) {
+                scoreDisplay.textContent = `评分：${score}`;
+                scoreDisplay.classList.remove("alert-info");
+                scoreDisplay.classList.add("alert-success");
+            } else {
+                scoreDisplay.textContent = "请选择公司查看评分";
+                scoreDisplay.classList.remove("alert-success");
+                scoreDisplay.classList.add("alert-info");
+            }
+        }
+    </script>
+    <script>
+        // 获取下拉菜单元素
+        const identityDropdown = document.getElementById('identity');
+
+        // 监听下拉菜单选择的变化
+        identityDropdown.addEventListener('change', () => {
+            // 获取当前选择的值
+            const selectedValue = identityDropdown.value;
+            // 更新页面内容
+            updateReportContent(selectedValue);
+        });
+
+        // 更新报告内容的函数
+        function updateReportContent(selectedValue) {
+            const summaryList = document.getElementById('summary-list');
+                if (selectedValue === 'investor') {
+                    summaryList.innerHTML = `
+                        <span>基于您输入的身份是investor，我们在E、S、G 三个维度分别给出最值得关注的若干条意见（分别不超过5条）</span>`;
+                } else if (selectedValue === 'government-agency') {
+                    summaryList.innerHTML = `
+                        <span>基于您输入的身份是government-agency，我们在E、S、G 三个维度分别给出最值得关注的若干条意见（分别不超过5条）</span>`;
+                } else if (selectedValue === 'business-owner') {
+                    summaryList.innerHTML = `
+                        <span>基于您输入的身份是business-owner，我们在E、S、G 三个维度分别给出最值得关注的若干条意见（分别不超过5条）</span>`;
+                }
+                summaryList.style.opacity = 1; // 淡入效果
+            }
+        // 初始化时根据默认选择更新内容
+        updateReportContent(identityDropdown.value);
+
+    </script>
+
+    <script>
+        // 导出报告功能
+        function exportReport() {
+            const reportSection = document.getElementById('report-section');
+
+            // 确保元素存在
+            if (!reportSection) {
+                console.error('无法找到要截屏的元素');
+                return;
+            }
+
+            // 使用 html2canvas 截取页面
+            html2canvas(reportSection, {
+                onrendered: function(canvas) {
+                    // 创建 PDF 文件
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+
+                    // 将页面内容作为图片添加到 PDF 中
+                    const imgData = canvas.toDataURL('image/png');
+                    doc.addImage(imgData, 'PNG', 10, 10, 180, 160);
+
+                    // 保存 PDF
+                    doc.save('report.pdf');
+                }
+            });
+        }
+    </script>
+    <input type="fileInput" id="fileInput" />
+
+    <!-- 使用Flask的url_for引入静态文件 -->
+    <script src="{{ url_for('static', filename='changefileText.js') }}"></script>
+    
 </body>
 </html>
