@@ -22,8 +22,7 @@ The project relies on various Python libraries for PDF parsing, NLP, and data pr
 ## Installation Steps
 ### Clone the Repository
 First, clone the project repository to your local machine using Git:\
-`git clone https://github.com/username/Automated-ESG-Data-Extraction.git`\
-`cd Automated-ESG-Data-Extraction`
+`git clone https://github.com/Geekliyi/DSS5105.git`\
 
 ### Install Dependencies
 Once the virtual environment is active, install the required packages using the `requirements.txt` file:\
